@@ -69,7 +69,7 @@ def knn_evaluate(train_data, train_labels, test_data, test_labels, k):
     return correct_count, len(test_data), accuracy
 
 # Set the range of k values for iterations
-k_values = [2, 3, 4]
+k_values = [2, 3, 4 ,7 ,23]
 
 # Perform iterations and print results
 for k in k_values:
