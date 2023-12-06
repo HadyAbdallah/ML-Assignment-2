@@ -25,12 +25,6 @@ x_test_np = x_test_scaled.to_numpy().reshape((-1, 8))
 y_train_np = y_train.to_numpy().reshape((-1, 1))
 y_test_np = y_test.to_numpy().reshape((-1, 1))
 
-# Function for Min-Max Scaling
-def min_max_scaling(data):
-    min_vals = np.min(data, axis=0)
-    max_vals = np.max(data, axis=0)
-    scaled_data = (data - min_vals) / (max_vals - min_vals)
-    return scaled_data
 
 # Function to calculate Euclidean Distance
 def euclidean_distance(point1, point2):
@@ -70,7 +64,7 @@ def knn_evaluate(train_data, train_labels, test_data, test_labels, k):
 
 # Set the range of k values for iterations
 k_values = [2, 3, 4 ,7 ,23]
-
+accuracies=[]
 # Perform iterations and print results
 for k in k_values:
     correct, total, accuracy = knn_evaluate(x_train_np, y_train_np, x_test_np, y_test_np, k)
@@ -78,7 +72,8 @@ for k in k_values:
     print(f"Number of correctly classified instances: {correct}")
     print(f"Total number of instances: {total}")
     print(f"Accuracy: {accuracy:.2f}%\n")
+    accuracies.append(accuracy)
 
 # Average accuracy across all iterations
-average_accuracy = np.mean([knn_evaluate(x_train_np, y_train_np, x_test_np, y_test_np, k)[2] for k in k_values])
+average_accuracy = np.mean(accuracies)
 print(f"Average Accuracy Across All Iterations: {average_accuracy:.2f}%")
