@@ -12,7 +12,7 @@ y = data[['Outcome']]
 # The data is shuffled and split into training and testing sets
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=100)
 
-# Features are standardized
+# Features are Normalized using Min-Max Scaling.
 x_train_max = x_train.max()
 x_train_min = x_train.min()
 range_x_train = x_train_max - x_train_min

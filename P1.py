@@ -20,7 +20,7 @@ print('Data types:\n', data_types)
 print('----------------------')
 print('First experiment:')
 
-# Records containing missing values are removed
+# Records containing missing values are filled
 data.loc[:, ["Age", "Na_to_K"]] = data[["Age", "Na_to_K"]].fillna(data[["Age", "Na_to_K"]].mean())
 
 
@@ -29,9 +29,10 @@ for column_name in data.columns:
     if data[column_name].dtype == 'object':
         data[column_name].fillna(data[column_name].mode()[0], inplace=True)
 
-label_encoder = LabelEncoder()
+
 
 # categorical features and targets are encoded
+label_encoder = LabelEncoder()
 for column_name in data.columns:
     if data[column_name].dtype == 'object':
         data.loc[:, column_name] = label_encoder.fit_transform(data.loc[:, column_name])
@@ -40,15 +41,17 @@ x = data.drop(columns=['Drug'])
 y = data['Drug']  # Update to use a Series for the target
 
 y=label_encoder.fit_transform(y)
+
 # Number of experiments
 num_experiments = 5
 
-# Initialize lists to store mae and size of trees
+# Initialize lists to store accuracy values and size of trees
 accuracy_values = []
 tree_sizes = []
 
+#First experiment
 for i in range(num_experiments):
-    # Split the data into training and testing sets with different random states
+    # Split the data into training and testing sets
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
     # train the Decision Tree
     model = tree.DecisionTreeClassifier(criterion="gini")
@@ -62,7 +65,7 @@ for i in range(num_experiments):
     # Make predictions
     y_pred = model.predict(x_test)
 
-    # Calculate Mean Absolute Error
+    # Calculate accuracy
     accuracy = model.score(x_test, y_test)
     accuracy_values.append(accuracy)
     print(f"Experiment {i + 1} - accuracy: {accuracy:.4f}")
@@ -87,39 +90,51 @@ split_ratios = np.arange(0.3, 0.8, 0.1)
 columns = ['split_ratio','mean_accuracy', 'max_accuracy', 'min_accuracy','mean_tree_size', 'max_tree_size', 'min_tree_size']
 report_df = pd.DataFrame(columns=columns)
 
+# Second experiment
 for split_ratio in split_ratios:
     # Initialize lists to store results for each ratio
     accuracy_values = []
     tree_sizes = []
 
     for i in range(num_experiments):
+        # Split the data into training and testing sets
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=1 - split_ratio)
+
+        # train the Decision Tree
         model = tree.DecisionTreeClassifier(criterion="gini")
         model.fit(x_train, y_train)
 
+        # Get the size of the decision tree
         tree_size = model.tree_.node_count
         tree_sizes.append(tree_size)
 
+        # Calculate accuracy
         accuracy = model.score(x_test, y_test)
         accuracy_values.append(accuracy)
-    mean_accuracy=np.mean(accuracy_values)
-    max_accuracy=max(accuracy_values)
+
+    # Calculate the mean, maximum, and minimum accuracy at each training set size.
+    mean_accuracy = np.mean(accuracy_values)
+    max_accuracy = max(accuracy_values)
     min_accuracy = min(accuracy_values)
+
+    # Measure the mean, maximum, and minimum tree size.
     mean_tree_size = np.mean(tree_sizes)
     max_tree_size = max(tree_sizes)
     min_tree_size = min(tree_sizes)
 
+    # Save mean_accuracy and mean_tree_size
     mean_accuracies.append(mean_accuracy)
     mean_trees_size.append(mean_tree_size)
 
+    # Add Data to report
     record = pd.DataFrame({
         'split_ratio': [split_ratio],
-        'mean_accuracy':[mean_accuracy],
-        'max_accuracy':[max_accuracy],
-        'min_accuracy':[min_accuracy],
-        'mean_tree_size':[mean_tree_size],
-        'max_tree_size':[max_tree_size],
-        'min_tree_size':[min_tree_size]
+        'mean_accuracy': [mean_accuracy],
+        'max_accuracy': [max_accuracy],
+        'min_accuracy': [min_accuracy],
+        'mean_tree_size': [mean_tree_size],
+        'max_tree_size': [max_tree_size],
+        'min_tree_size': [min_tree_size]
     })
     if report_df.empty:
         report_df = record.copy()
@@ -127,7 +142,7 @@ for split_ratio in split_ratios:
         report_df = pd.concat([report_df, record], ignore_index=True)
 
 
-
+#print report
 print(report_df)
 
 # Create two plots
